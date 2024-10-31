@@ -1,11 +1,13 @@
+import {NavigationContainer} from '@react-navigation/native';
 import React from 'react';
-import {View, Text} from 'react-native';
+import 'react-native-gesture-handler';
+import {StackNavigator} from './presentation/navigation/StackNavigator';
 
 export const AscencioApp = () => {
   return (
-    <View>
-      <Text>AscencioApp</Text>
-    </View>
+    <NavigationContainer>
+      <StackNavigator />
+    </NavigationContainer>
   );
 };
 
