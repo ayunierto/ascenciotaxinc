@@ -5,6 +5,7 @@ import {View, StyleSheet, Image} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {Button, Text, TextInput, useTheme} from 'react-native-paper';
 import {RootStackParams} from '../../navigation/StackNavigator';
+import {API_URL} from '@env';
 
 interface Props extends StackScreenProps<RootStackParams, 'LoginScreen'> {}
 
@@ -17,6 +18,8 @@ export const LoginScreen = ({navigation}: Props) => {
     email: '',
     password: '',
   });
+
+  console.log({apiUrl: API_URL});
 
   return (
     <View style={{...styles.container, backgroundColor: theme.colors.primary}}>
