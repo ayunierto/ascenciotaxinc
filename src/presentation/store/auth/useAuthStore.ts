@@ -11,6 +11,7 @@ export interface AuthState {
   login: (email: string, password: string) => Promise<boolean>;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const useAuthStore = create<AuthState>()((set, get) => ({
   status: 'checking',
   token: undefined,
@@ -24,8 +25,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     }
 
     // TODO: Save token and user in storage
-
     set({status: 'authenticated', token: resp.token, user: resp.user});
-    return false;
+    return true;
   },
 }));

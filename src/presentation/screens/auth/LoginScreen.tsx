@@ -1,25 +1,41 @@
 /* eslint-disable react-native/no-inline-styles */
 import {StackScreenProps} from '@react-navigation/stack';
 import React, {useState} from 'react';
-import {View, StyleSheet, Image} from 'react-native';
+import {View, StyleSheet, Image, Alert} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {Button, Text, TextInput, useTheme} from 'react-native-paper';
 import {RootStackParams} from '../../navigation/StackNavigator';
-import {API_URL} from '@env';
+import {useAuthStore} from '../../store/auth/useAuthStore';
 
 interface Props extends StackScreenProps<RootStackParams, 'LoginScreen'> {}
 
 export const LoginScreen = ({navigation}: Props) => {
   const theme = useTheme();
 
-  const [isLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [form, setForm] = useState({
-    email: '',
-    password: '',
+    email: 'test1@google.com',
+    password: 'Abc123',
   });
 
-  console.log({apiUrl: API_URL});
+  const {login} = useAuthStore();
+  const onLogin = async () => {
+    if (form.email.length === 0 || form.password.length === 0) {
+      Alert.alert('Info', 'Complete the fields email and password');
+      return;
+    }
+
+    setIsLoading(true);
+    const wasSuccessful = await login(form.email, form.password);
+    setIsLoading(false);
+
+    if (wasSuccessful) {
+      return;
+    }
+
+    Alert.alert('Error', 'Incorrect credentials');
+  };
 
   return (
     <View style={{...styles.container, backgroundColor: theme.colors.primary}}>
@@ -99,6 +115,7 @@ export const LoginScreen = ({navigation}: Props) => {
             loading={isLoading}
             disabled={isLoading}
             uppercase
+            onPress={onLogin}
             mode="elevated">
             Login
           </Button>

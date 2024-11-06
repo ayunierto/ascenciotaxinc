@@ -19,7 +19,7 @@ const returnUserToken = (data: AuthResponse) => {
 export const authLogin = async (email: string, password: string) => {
   email = email.toLocaleLowerCase();
   try {
-    const {data} = await api.post<AuthResponse>('/auth/signin', {
+    const data: AuthResponse = await api('/auth/signin', 'POST', {
       email,
       password,
     });
