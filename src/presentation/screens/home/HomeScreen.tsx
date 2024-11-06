@@ -2,9 +2,16 @@
 import React from 'react';
 import {Image, ScrollView, StyleSheet, View} from 'react-native';
 import {Appbar, Button, Card, Text, useTheme} from 'react-native-paper';
+import {useAuthStore} from '../../store/auth/useAuthStore';
 
 export const HomeScreen = () => {
   const theme = useTheme();
+
+  const {logout} = useAuthStore();
+
+  const onLogout = () => {
+    logout();
+  };
 
   return (
     <ScrollView>
@@ -15,7 +22,11 @@ export const HomeScreen = () => {
           onPress={() => {}}
           color={theme.colors.onPrimary}
         />
-        <Appbar.Action icon="log-out-outline" color={theme.colors.onPrimary} />
+        <Appbar.Action
+          icon="log-out-outline"
+          color={theme.colors.onPrimary}
+          onPress={onLogout}
+        />
       </Appbar.Header>
       <View
         style={{

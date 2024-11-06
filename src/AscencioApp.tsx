@@ -5,6 +5,7 @@ import {StackNavigator} from './presentation/navigation/StackNavigator';
 import {PaperProvider} from 'react-native-paper';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import {theme} from './config/theme';
+import AuthProvider from './presentation/provider/AuthProvider';
 
 export const AscencioApp = () => {
   return (
@@ -26,7 +27,9 @@ export const AscencioApp = () => {
             notification: theme.colors.primaryContainer,
           },
         }}>
-        <StackNavigator />
+        <AuthProvider>
+          <StackNavigator />
+        </AuthProvider>
       </NavigationContainer>
     </PaperProvider>
   );

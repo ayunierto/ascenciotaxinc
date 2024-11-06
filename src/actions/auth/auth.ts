@@ -16,16 +16,33 @@ const returnUserToken = (data: AuthResponse) => {
     token: data.token,
   };
 };
+
 export const authLogin = async (email: string, password: string) => {
   email = email.toLocaleLowerCase();
   try {
-    const data: AuthResponse = await api('/auth/signin', 'POST', {
+    const data = await api('/auth/signin', 'POST', {
       email,
       password,
     });
-    return returnUserToken(data);
+    if (data.token) {
+      return returnUserToken(data);
+    }
+    return null;
   } catch (error) {
     console.log(error);
+    return null;
+  }
+};
+
+export const authCheckSatus = async () => {
+  try {
+    const data = await api('/auth/check-status', 'GET');
+    if (data.token) {
+      return returnUserToken(data);
+    }
+    return null;
+  } catch (error) {
+    console.error(error);
     return null;
   }
 };

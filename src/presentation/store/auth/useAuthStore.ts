@@ -1,7 +1,7 @@
 import {create} from 'zustand';
 import {User} from '../../../domain/entities/user';
 import {AuthStatus} from '../../../infrastructure/interfaces/auth.status';
-import {authLogin} from '../../../actions/auth/auth';
+import {authCheckSatus, authLogin} from '../../../actions/auth/auth';
 import {StorageAdapter} from '../../../config/adapters/storage-adapter';
 
 export interface AuthState {
@@ -10,6 +10,8 @@ export interface AuthState {
   user?: User;
 
   login: (email: string, password: string) => Promise<boolean>;
+  checkStatus: () => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -27,10 +29,23 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
 
     await StorageAdapter.setItem('token', resp.token);
 
-    const storedToken = await StorageAdapter.getItem('token');
-    console.log(storedToken);
-
     set({status: 'authenticated', token: resp.token, user: resp.user});
     return true;
+  },
+
+  checkStatus: async () => {
+    const resp = await authCheckSatus();
+    if (!resp) {
+      set({status: 'unauthenticated', token: undefined, user: undefined});
+      return;
+    }
+
+    await StorageAdapter.setItem('token', resp.token);
+    set({status: 'authenticated', token: resp.token, user: resp.user});
+  },
+
+  logout: async () => {
+    await StorageAdapter.removeItem('token');
+    set({status: 'unauthenticated', token: undefined, user: undefined});
   },
 }));

@@ -9,11 +9,13 @@ export class StorageAdapter {
     }
   }
 
-  static async setItem(key: string, value: string): Promise<void> {
+  static async setItem(key: string, value: string): Promise<boolean> {
     try {
       await AsyncStorage.setItem(key, value);
+      return true;
     } catch (error) {
       console.error(error);
+      return false;
     }
   }
 
