@@ -16,8 +16,12 @@ import {useQuery} from '@tanstack/react-query';
 import MainLayout from '../../layouts/MainLayout';
 import FullScreenLoader from '../../components/FullScreenLoader';
 import {useAuthStore} from '../../store/auth/useAuthStore';
+import {StackScreenProps} from '@react-navigation/stack';
+import {RootStackParams} from '../../navigation/StackNavigator';
 
-export const HomeScreen = () => {
+interface Props extends StackScreenProps<RootStackParams, 'HomeScreen'> {}
+
+export const HomeScreen = ({navigation}: Props) => {
   const theme = useTheme();
 
   const {isLoading, data: services = []} = useQuery({
@@ -50,7 +54,7 @@ export const HomeScreen = () => {
             }>
             <Menu.Item
               leadingIcon="person-circle-outline"
-              onPress={() => {}}
+              onPress={() => navigation.navigate('SettingsScreen')}
               title="Profile"
             />
             <Divider />
@@ -93,7 +97,11 @@ export const HomeScreen = () => {
                   )}
                 </Card.Content>
                 <Card.Actions>
-                  <Button mode="contained">Book Now</Button>
+                  <Button
+                    mode="contained"
+                    onPress={() => navigation.navigate('BookingScreen')}>
+                    Book Now
+                  </Button>
                 </Card.Actions>
               </Card>
             ))

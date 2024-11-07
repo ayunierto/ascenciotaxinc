@@ -12,11 +12,11 @@ export const RegisterScreen = ({navigation}: Props) => {
   const theme = useTheme();
 
   const [form, setForm] = useState({
-    fullName: '',
-    phoneNumber: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    fullName: 'Test Ten',
+    phoneNumber: '917732227',
+    email: 'test10@gmail.com',
+    password: 'Abc123456',
+    confirmPassword: 'Abc123456',
   });
   const [isLoading, setIsLoading] = useState(false);
   const [passwordMatchMsg, setPasswordMatchMsg] = useState('');
