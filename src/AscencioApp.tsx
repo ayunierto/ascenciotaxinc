@@ -6,32 +6,37 @@ import {PaperProvider} from 'react-native-paper';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import {theme} from './config/theme';
 import AuthProvider from './presentation/provider/AuthProvider';
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 export const AscencioApp = () => {
   return (
-    <PaperProvider
-      theme={theme}
-      settings={{
-        // eslint-disable-next-line react/no-unstable-nested-components
-        icon: props => <IonIcon {...props} />,
-      }}>
-      <NavigationContainer
-        theme={{
-          dark: false,
-          colors: {
-            primary: theme.colors.primary,
-            background: theme.colors.primary,
-            card: theme.colors.primaryContainer,
-            text: theme.colors.onPrimary,
-            border: theme.colors.tertiary,
-            notification: theme.colors.primaryContainer,
-          },
+    <QueryClientProvider client={queryClient}>
+      <PaperProvider
+        theme={theme}
+        settings={{
+          // eslint-disable-next-line react/no-unstable-nested-components
+          icon: props => <IonIcon {...props} />,
         }}>
-        <AuthProvider>
-          <StackNavigator />
-        </AuthProvider>
-      </NavigationContainer>
-    </PaperProvider>
+        <NavigationContainer
+          theme={{
+            dark: false,
+            colors: {
+              primary: theme.colors.primary,
+              background: theme.colors.primary,
+              card: theme.colors.primaryContainer,
+              text: theme.colors.onPrimary,
+              border: theme.colors.tertiary,
+              notification: theme.colors.primaryContainer,
+            },
+          }}>
+          <AuthProvider>
+            <StackNavigator />
+          </AuthProvider>
+        </NavigationContainer>
+      </PaperProvider>
+    </QueryClientProvider>
   );
 };
 
