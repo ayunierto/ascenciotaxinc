@@ -34,6 +34,30 @@ export const authLogin = async (email: string, password: string) => {
   }
 };
 
+export const authRegister = async (
+  fullName: string,
+  email: string,
+  phoneNumber: string,
+  password: string,
+) => {
+  email = email.toLocaleLowerCase();
+  try {
+    const data = await api('/auth/signup', 'POST', {
+      fullName,
+      email,
+      phoneNumber,
+      password,
+    });
+    if (data.token) {
+      return returnUserToken(data);
+    }
+    return null;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
 export const authCheckSatus = async () => {
   try {
     const data = await api('/auth/check-status', 'GET');

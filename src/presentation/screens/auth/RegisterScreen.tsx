@@ -5,6 +5,7 @@ import {View, StyleSheet, Image, Alert} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {Button, Text, TextInput, useTheme} from 'react-native-paper';
 import {RootStackParams} from '../../navigation/StackNavigator';
+import {useAuthStore} from '../../store/auth/useAuthStore';
 
 interface Props extends StackScreenProps<RootStackParams, 'RegisterScreen'> {}
 
@@ -31,6 +32,8 @@ export const RegisterScreen = ({navigation}: Props) => {
     }
   };
 
+  const {register} = useAuthStore();
+
   useEffect(() => {
     checkEqualPasswords();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -46,11 +49,16 @@ export const RegisterScreen = ({navigation}: Props) => {
       return;
     }
     setIsLoading(true);
-    // const resp = await register(form.email, form.password);
+    const wasSuccessful = await register(
+      form.fullName,
+      form.email,
+      form.phoneNumber,
+      form.password,
+    );
     setIsLoading(false);
-    // if (resp.msg === 'ok') {
-    // return;
-    // }
+    if (wasSuccessful) {
+      return;
+    }
 
     Alert.alert(
       'Error',
@@ -176,7 +184,6 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   header: {
-    paddingTop: 40,
     paddingBottom: 40,
     alignItems: 'center',
   },
