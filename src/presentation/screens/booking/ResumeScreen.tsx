@@ -4,9 +4,12 @@ import {StyleSheet, View} from 'react-native';
 import {Button, Card, Text, useTheme} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MainLayout from '../../layouts/MainLayout';
+import {useBookingStore} from '../../store/useBookingStore';
 
 export const ResumeScreen = () => {
   const theme = useTheme();
+  const {service, staff} = useBookingStore();
+
   return (
     <MainLayout>
       <View
@@ -20,7 +23,7 @@ export const ResumeScreen = () => {
           style={{backgroundColor: theme.colors.onPrimary}}>
           <Card.Title
             title="Service"
-            subtitle="In-person Tax Filing (Walk-in)"
+            subtitle={service}
             left={props => (
               <Icon
                 style={{color: theme.colors.primary}}
@@ -65,7 +68,7 @@ export const ResumeScreen = () => {
           style={{backgroundColor: theme.colors.onPrimary}}>
           <Card.Title
             title="Staff"
-            subtitle="Yulier Rondon"
+            subtitle={staff}
             left={props => (
               <Icon
                 style={{color: theme.colors.primary}}

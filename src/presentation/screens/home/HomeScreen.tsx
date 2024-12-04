@@ -18,6 +18,7 @@ import FullScreenLoader from '../../components/FullScreenLoader';
 import {useAuthStore} from '../../store/auth/useAuthStore';
 import {StackScreenProps} from '@react-navigation/stack';
 import {RootStackParams} from '../../navigation/StackNavigator';
+import {useBookingStore} from '../../store/useBookingStore';
 
 interface Props extends StackScreenProps<RootStackParams, 'HomeScreen'> {}
 
@@ -37,6 +38,22 @@ export const HomeScreen = ({navigation}: Props) => {
   const openMenu = () => setVisible(true);
 
   const closeMenu = () => setVisible(false);
+
+  const {
+    setState,
+    address,
+    date,
+    // service: serv,
+    staff,
+    time,
+  } = useBookingStore();
+
+  const onReserve = (service: string) => {
+    setState({address, date, service, staff, time});
+    console.log({address, date, service, staff, time});
+    navigation.navigate('BookingScreen');
+    return;
+  };
 
   return (
     <MainLayout
@@ -99,7 +116,7 @@ export const HomeScreen = ({navigation}: Props) => {
                 <Card.Actions>
                   <Button
                     mode="contained"
-                    onPress={() => navigation.navigate('BookingScreen')}>
+                    onPress={() => onReserve(service.title)}>
                     Book Now
                   </Button>
                 </Card.Actions>

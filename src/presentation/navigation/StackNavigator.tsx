@@ -17,7 +17,7 @@ export type RootStackParams = {
   BookingScreen: undefined;
   ResumeScreen: undefined;
   SettingsScreen: undefined;
-  ServiceScreen: {serviceId: string};
+  // ServiceScreen: {serviceId: string};
 };
 
 const Stack = createStackNavigator<RootStackParams>();
