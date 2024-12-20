@@ -111,6 +111,7 @@ export const RegisterScreen = ({navigation}: Props) => {
                 onChangeText={onChange}
                 placeholder="First name"
                 autoCapitalize="words"
+                autoComplete="name"
               />
             )}
           />
@@ -130,6 +131,7 @@ export const RegisterScreen = ({navigation}: Props) => {
                 onBlur={onBlur}
                 onChangeText={onChange}
                 autoCapitalize="words"
+                autoComplete="name-family"
               />
             )}
           />
@@ -150,6 +152,7 @@ export const RegisterScreen = ({navigation}: Props) => {
                 keyboardType="email-address"
                 placeholder="Email"
                 autoCapitalize="none"
+                autoComplete="email"
               />
             )}
           />
@@ -170,6 +173,7 @@ export const RegisterScreen = ({navigation}: Props) => {
                 keyboardType="phone-pad"
                 placeholder="Phone Number"
                 autoCapitalize="none"
+                autoComplete="tel"
               />
             )}
           />
@@ -190,6 +194,7 @@ export const RegisterScreen = ({navigation}: Props) => {
                 autoCapitalize="none"
                 secureTextEntry
                 placeholder="Password"
+                autoComplete="password-new"
               />
             )}
           />
@@ -210,6 +215,7 @@ export const RegisterScreen = ({navigation}: Props) => {
                 autoCapitalize="none"
                 secureTextEntry
                 placeholder="Confirm Password"
+                autoComplete="password-new"
               />
             )}
           />

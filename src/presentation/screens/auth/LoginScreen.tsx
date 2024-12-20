@@ -71,8 +71,8 @@ export const LoginScreen = ({navigation}: Props) => {
   };
 
   return (
-    <View style={styles.container}>
-      <ScrollView>
+    <ScrollView>
+      <View style={styles.container}>
         <View style={styles.header}>
           <Image
             source={require('../../../assets/logo.webp')}
@@ -130,6 +130,9 @@ export const LoginScreen = ({navigation}: Props) => {
                 onChangeText={onChange}
                 keyboardType="email-address"
                 placeholder="Email or phone number"
+                autoCapitalize="none"
+                autoComplete="email"
+                autoFocus
               />
             )}
           />
@@ -150,6 +153,7 @@ export const LoginScreen = ({navigation}: Props) => {
                 autoCapitalize="words"
                 secureTextEntry
                 placeholder="Enter password"
+                autoComplete="password"
               />
             )}
           />
@@ -163,8 +167,8 @@ export const LoginScreen = ({navigation}: Props) => {
             Login
           </Button>
         </View>
-      </ScrollView>
-    </View>
+      </View>
+    </ScrollView>
   );
 };
 

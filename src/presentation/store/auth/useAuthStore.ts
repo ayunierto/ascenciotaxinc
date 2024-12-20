@@ -29,7 +29,6 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     if (response.error === 'Inactive') {
       set({status: 'unauthenticated', token: undefined, user: undefined});
     }
-    console.warn({useAuthStore: response});
     return response;
     // if (!response) {
     //   set({status: 'unauthenticated', token: undefined, user: undefined});

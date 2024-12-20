@@ -61,6 +61,7 @@ export const VerifyScreen = () => {
             autoCapitalize="words"
             placeholder="Verification code"
             keyboardType="numeric"
+            autoComplete="sms-otp"
           />
         )}
       />
