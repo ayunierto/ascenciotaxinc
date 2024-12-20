@@ -5,4 +5,5 @@ export interface Service {
   duration: string;
   isActive: boolean;
   image: string;
+  staffMembers: string[];
 }

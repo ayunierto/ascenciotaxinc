@@ -38,19 +38,10 @@ export const HomeScreen = ({navigation}: Props) => {
   const openMenu = () => setVisible(true);
 
   const closeMenu = () => setVisible(false);
+  const {bookNow} = useBookingStore();
 
-  const {
-    setState,
-    address,
-    date,
-    // service: serv,
-    staff,
-    time,
-  } = useBookingStore();
-
-  const onReserve = (service: string) => {
-    setState({address, date, service, staff, time});
-    console.log({address, date, service, staff, time});
+  const handleBookNow = (service: string, staffMembers: string[]) => {
+    bookNow(service, staffMembers);
     navigation.navigate('BookingScreen');
     return;
   };
@@ -116,7 +107,9 @@ export const HomeScreen = ({navigation}: Props) => {
                 <Card.Actions>
                   <Button
                     mode="contained"
-                    onPress={() => onReserve(service.title)}>
+                    onPress={() =>
+                      handleBookNow(service.title, service.staffMembers)
+                    }>
                     Book Now
                   </Button>
                 </Card.Actions>

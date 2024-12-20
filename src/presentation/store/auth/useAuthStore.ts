@@ -1,27 +1,21 @@
 import {create} from 'zustand';
 import {User} from '../../../domain/entities/user';
 import {AuthStatus} from '../../../infrastructure/interfaces/auth.status';
-import {
-  authCheckSatus,
-  authLogin,
-  authRegister,
-} from '../../../actions/auth/auth';
 import {StorageAdapter} from '../../../config/adapters/storage-adapter';
+import {checkSatus, signin, signup} from '../../../actions/auth';
+import {RegisterData} from '../../../infrastructure/interfaces';
+import {verifyCode} from '../../../actions/auth/auth';
 
 export interface AuthState {
   status: AuthStatus;
   token?: string;
   user?: User;
 
-  login: (email: string, password: string) => Promise<boolean>;
-  register: (
-    fullName: string,
-    email: string,
-    phoneNumber: string,
-    password: string,
-  ) => Promise<boolean>;
+  signin: (email: string, password: string) => Promise<any>;
+  signup: (values: RegisterData) => Promise<any>;
   checkStatus: () => Promise<void>;
-  logout: () => Promise<void>;
+  logout: () => Promise<boolean>;
+  verifyCode: (phone_number: string, verfication_code: string) => Promise<any>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -30,50 +24,77 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   token: undefined,
   user: undefined,
 
-  login: async (email: string, password: string) => {
-    const resp = await authLogin(email, password);
-    if (!resp) {
+  signin: async (username: string, password: string) => {
+    const response = await signin(username, password);
+    if (response.error === 'Inactive') {
       set({status: 'unauthenticated', token: undefined, user: undefined});
-      return false;
     }
+    console.warn({useAuthStore: response});
+    return response;
+    // if (!response) {
+    //   set({status: 'unauthenticated', token: undefined, user: undefined});
+    //   return false;
+    // }
 
-    await StorageAdapter.setItem('token', resp.token);
+    // await StorageAdapter.setItem('token', response.token);
 
-    set({status: 'authenticated', token: resp.token, user: resp.user});
-    return true;
+    // set({status: 'authenticated', token: response.token, user: response.user});
+    // return true;
   },
 
-  register: async (
-    fullName: string,
-    email: string,
-    phoneNumber: string,
-    password: string,
-  ) => {
-    const resp = await authRegister(fullName, email, phoneNumber, password);
-    if (!resp) {
-      set({status: 'unauthenticated', token: undefined, user: undefined});
-      return false;
+  signup: async (values: RegisterData) => {
+    const response = await signup(values);
+    if (response.verification_code) {
+      set({status: 'unauthenticated', token: undefined, user: response});
     }
+    return response;
+    // if (!response) {
+    //   set({status: 'unauthenticated', token: undefined, user: undefined});
+    //   return false;
+    // }
 
-    await StorageAdapter.setItem('token', resp.token);
+    // await StorageAdapter.setItem('token', response.token);
 
-    set({status: 'authenticated', token: resp.token, user: resp.user});
-    return true;
+    // set({status: 'authenticated', token: response.token, user: response.user});
+    // return true;
   },
 
   checkStatus: async () => {
-    const resp = await authCheckSatus();
-    if (!resp) {
+    const response = await checkSatus();
+
+    if (response.statusCode === 401) {
       set({status: 'unauthenticated', token: undefined, user: undefined});
       return;
     }
 
-    await StorageAdapter.setItem('token', resp.token);
-    set({status: 'authenticated', token: resp.token, user: resp.user});
+    if (!response) {
+      set({status: 'unauthenticated', token: undefined, user: undefined});
+      return;
+    }
+
+    await StorageAdapter.setItem('token', response.token);
+    set({status: 'authenticated', token: response.token, user: response.user});
   },
 
   logout: async () => {
-    await StorageAdapter.removeItem('token');
-    set({status: 'unauthenticated', token: undefined, user: undefined});
+    const response = await StorageAdapter.removeItem('token');
+    if (response) {
+      set({status: 'unauthenticated', token: undefined, user: undefined});
+      return true;
+    }
+    return false;
+  },
+
+  verifyCode: async (phone_number: string, verification_code: string) => {
+    const response = await verifyCode(phone_number, verification_code);
+    if (response.token) {
+      await StorageAdapter.setItem('token', response.token);
+      set({
+        status: 'authenticated',
+        token: response.token,
+        user: undefined,
+      });
+    }
+    return response;
   },
 }));

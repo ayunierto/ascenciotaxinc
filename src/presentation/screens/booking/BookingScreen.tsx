@@ -16,11 +16,6 @@ import {RootStackParams} from '../../navigation/StackNavigator';
 import {useBookingStore} from '../../store/useBookingStore';
 import GoogleCalendarService from '../../../actions/google-calendar/calendar';
 
-const options = [
-  {label: 'Lucia Ascencio', value: 'Lucia Ascencio'},
-  {label: 'Yulier Rondon', value: 'Yulier Rondon'},
-];
-
 interface Day {
   dateString: string;
   day: number;
@@ -32,13 +27,16 @@ interface Day {
 interface Props extends StackScreenProps<RootStackParams, 'HomeScreen'> {}
 
 export const BookingScreen = ({navigation}: Props) => {
-  const [staff, setStaff] = useState<string>();
-
   const theme = useTheme();
 
-  const {setState} = useBookingStore();
+  const [staff, setStaff] = useState<string>();
+  const [selected, setSelected] = useState('');
+  const {staffMembers} = useBookingStore();
+  const options = staffMembers.map(member => {
+    return {label: member, value: member};
+  });
+
   const onSelectedStaff = (name: string = '') => {
-    setState({staff: name});
     setStaff(name);
   };
 
@@ -50,8 +48,6 @@ export const BookingScreen = ({navigation}: Props) => {
 
     return `${year}-${month}-${day}`;
   };
-
-  const [selected, setSelected] = useState('');
 
   const handleAuth = async () => {
     const authUrl = await GoogleCalendarService.getAuthUrl();
@@ -117,37 +113,37 @@ export const BookingScreen = ({navigation}: Props) => {
           <View style={styles.hours}>
             <Chip
               style={{backgroundColor: theme.colors.onPrimary}}
-              icon="information"
+              icon="alarm-outline"
               onPress={() => console.log('Pressed')}>
               07:00 a.m.
             </Chip>
             <Chip
-              icon="information"
+              icon="alarm-outline"
               style={{backgroundColor: theme.colors.onPrimary}}
               onPress={() => console.log('Pressed')}>
               08:00 a.m.
             </Chip>
             <Chip
               style={{backgroundColor: theme.colors.onPrimary}}
-              icon="information"
+              icon="alarm-outline"
               onPress={() => console.log('Pressed')}>
               09:00 a.m.
             </Chip>
             <Chip
               style={{backgroundColor: theme.colors.onPrimary}}
-              icon="information"
+              icon="alarm-outline"
               onPress={() => console.log('Pressed')}>
               10:00 a.m.
             </Chip>
             <Chip
               style={{backgroundColor: theme.colors.onPrimary}}
-              icon="information"
+              icon="alarm-outline"
               onPress={() => console.log('Pressed')}>
               11:00 a.m.
             </Chip>
             <Chip
               style={{backgroundColor: theme.colors.onPrimary}}
-              icon="information"
+              icon="alarm-outline"
               onPress={() => console.log('Pressed')}>
               12:00 p.m.
             </Chip>

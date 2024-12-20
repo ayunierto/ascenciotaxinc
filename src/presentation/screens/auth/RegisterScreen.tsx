@@ -1,176 +1,228 @@
-/* eslint-disable react-native/no-inline-styles */
-import React, {useEffect, useState} from 'react';
-import {StackScreenProps} from '@react-navigation/stack';
-import {View, StyleSheet, Image, Alert} from 'react-native';
+import React from 'react';
+import {View, StyleSheet, Image, Text} from 'react-native';
+
 import {ScrollView} from 'react-native-gesture-handler';
-import {Button, Text, TextInput, useTheme} from 'react-native-paper';
+import {StackScreenProps} from '@react-navigation/stack';
+
 import {RootStackParams} from '../../navigation/StackNavigator';
+
+import {z} from 'zod';
+import {useForm, Controller} from 'react-hook-form';
+import {zodResolver} from '@hookform/resolvers/zod';
 import {useAuthStore} from '../../store/auth/useAuthStore';
+import Input from '../../../components/ui/Input';
+import {Button} from '../../../components/ui';
 
 interface Props extends StackScreenProps<RootStackParams, 'RegisterScreen'> {}
 
-export const RegisterScreen = ({navigation}: Props) => {
-  const theme = useTheme();
-
-  const [form, setForm] = useState({
-    fullName: 'Test Ten',
-    phoneNumber: '917732227',
-    email: 'test10@gmail.com',
-    password: 'Abc123456',
-    confirmPassword: 'Abc123456',
+const registerUserSchema = z
+  .object({
+    name: z.string().min(3, 'First name must be at least 3 characters'),
+    last_name: z.string().min(3, 'First name must be at least 3 characters'),
+    email: z.string().email('Invalid email address'),
+    phone_number: z
+      .string()
+      .regex(
+        /^\+\d{1,3}\d{10}$/,
+        'Invalid phone number format. It should include the country code and be a valid phone number',
+      ),
+    password: z
+      .string()
+      .min(8, 'Password must be at least 8 characters')
+      .regex(
+        /(?:(?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/,
+        'Password must include uppercase, lowercase and numbers',
+      ),
+    confirm_password: z
+      .string()
+      .min(8, 'Confirm Password must be at least 8 characters')
+      .optional(),
+  })
+  .refine(data => data.password === data.confirm_password, {
+    message: 'Passwords must match',
+    path: ['confirm_password'],
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const [passwordMatchMsg, setPasswordMatchMsg] = useState('');
 
-  const checkEqualPasswords = () => {
-    if (form.password === form.confirmPassword) {
-      setPasswordMatchMsg('');
-      return true;
-    } else {
-      setPasswordMatchMsg('Passwords must match');
-      return false;
+export const RegisterScreen = ({navigation}: Props) => {
+  const {
+    control,
+    handleSubmit,
+    formState: {errors},
+    setError,
+    setFocus,
+  } = useForm<z.infer<typeof registerUserSchema>>({
+    resolver: zodResolver(registerUserSchema),
+  });
+
+  const {signup} = useAuthStore();
+
+  const onRegister = async (values: z.infer<typeof registerUserSchema>) => {
+    const response = await signup(values);
+    if (response.verification_code) {
+      navigation.navigate('VerifyScreen');
     }
-  };
-
-  const {register} = useAuthStore();
-
-  useEffect(() => {
-    checkEqualPasswords();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.password, form.confirmPassword]);
-
-  const onRegister = async () => {
-    if (form.email.length === 0 || form.password.length <= 6) {
-      Alert.alert('Error', 'Please fill in the fields!');
-      return;
+    if (response.code === 409) {
+      if (response.cause === 'email') {
+        setFocus('email');
+        setError('email', {
+          type: 'manual',
+          message:
+            'Your email is already being used by an existing AscencioTax account. You can go the AscencioTax login screen to login using this email.',
+        });
+        return;
+      }
+      if (response.cause === 'phone_number') {
+        setFocus('phone_number');
+        setError('phone_number', {
+          type: 'manual',
+          message:
+            'Your phone number is already being used by an existing AscencioTax account. You can go the AscencioTax login screen to login using this phone number.',
+        });
+        return;
+      }
     }
-    if (form.password !== form.confirmPassword) {
-      Alert.alert('Error', 'Passwords must match!');
-      return;
-    }
-    setIsLoading(true);
-    const wasSuccessful = await register(
-      form.fullName,
-      form.email,
-      form.phoneNumber,
-      form.password,
-    );
-    setIsLoading(false);
-    if (wasSuccessful) {
-      return;
-    }
-
-    Alert.alert(
-      'Error',
-      'The email address is already in use by another account.',
-    );
   };
 
   return (
-    <View style={{...styles.container, backgroundColor: theme.colors.primary}}>
-      <ScrollView>
+    <ScrollView>
+      <View style={styles.container}>
         <View style={styles.header}>
           <Image
             source={require('../../../assets/logo.webp')}
             style={styles.banner}
           />
-          <Text
-            style={{...styles.title, color: theme.colors.onPrimary}}
-            variant="displayLarge">
-            Sign Up
-          </Text>
-          <Text style={{color: theme.colors.onPrimary, marginTop: 20}}>
+          <Text style={styles.title}>Sign Up</Text>
+          <Text style={styles.subtitle}>
             Already a member?{' '}
-            <Text
-              style={{color: theme.colors.primaryContainer, fontWeight: '800'}}
-              onPress={() => navigation.goBack()}>
+            <Text onPress={() => navigation.goBack()} style={styles.link}>
               Sign In
             </Text>
           </Text>
         </View>
 
-        {/* <View style={styles.social}>
-          <FAB
-            icon={'logo-google'}
-            onPress={() => console.log('Pressed')}
-            style={{backgroundColor: theme.colors.onPrimary}}
-          />
-          <FAB
-            icon={'logo-apple'}
-            onPress={() => console.log('Pressed')}
-            style={{backgroundColor: theme.colors.onPrimary}}
-          />
-
-          <FAB
-            icon={'logo-facebook'}
-            onPress={() => console.log('Pressed')}
-            style={{backgroundColor: theme.colors.onPrimary}}
-          />
-        </View> */}
-
-        {/* <View style={styles.orEmail}>
-          <Text variant="titleMedium" style={{color: theme.colors.onPrimary}}>
-            Or sign up with email
-          </Text>
-        </View> */}
-
         <View style={styles.inputs}>
-          <TextInput
-            label="Full Name"
-            value={form.fullName}
-            onChangeText={fullName => setForm({...form, fullName})}
-            autoCapitalize="words"
-            style={{backgroundColor: theme.colors.onPrimary}}
+          <Controller
+            control={control}
+            name="name"
+            render={({field: {onChange, onBlur, value}}) => (
+              <Input
+                value={value}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                placeholder="First name"
+                autoCapitalize="words"
+              />
+            )}
           />
-          <TextInput
-            label="Email"
-            value={form.email}
-            onChangeText={email => setForm({...form, email})}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            style={{backgroundColor: theme.colors.onPrimary}}
-          />
-          <TextInput
-            label="Phone Number"
-            value={form.phoneNumber}
-            onChangeText={phoneNumber => setForm({...form, phoneNumber})}
-            keyboardType="phone-pad"
-            autoCapitalize="none"
-            style={{backgroundColor: theme.colors.onPrimary}}
-          />
-          <TextInput
-            label="Password"
-            autoCapitalize="none"
-            secureTextEntry
-            value={form.password}
-            onChangeText={password => setForm({...form, password})}
-            style={{backgroundColor: theme.colors.onPrimary}}
-          />
-          <TextInput
-            label="Confirm Password"
-            autoCapitalize="none"
-            secureTextEntry
-            value={form.confirmPassword}
-            onChangeText={confirmPassword =>
-              setForm({...form, confirmPassword})
-            }
-            style={{backgroundColor: theme.colors.onPrimary}}
-          />
-          {passwordMatchMsg !== '' && (
-            <Text style={styles.passwordMatch}>* {passwordMatchMsg}</Text>
+          {errors.name && (
+            <Text style={styles.errorText}>
+              {errors.name?.message as string}
+            </Text>
           )}
 
-          <Button
-            icon={'log-in-outline'}
-            loading={isLoading}
-            uppercase
-            mode="elevated"
-            onPress={onRegister}>
-            Sign Up
-          </Button>
+          <Controller
+            control={control}
+            name="last_name"
+            render={({field: {onChange, onBlur, value}}) => (
+              <Input
+                placeholder="Last name"
+                value={value}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                autoCapitalize="words"
+              />
+            )}
+          />
+          {errors.last_name && (
+            <Text style={styles.errorText}>
+              {errors.last_name?.message as string}
+            </Text>
+          )}
+
+          <Controller
+            control={control}
+            name="email"
+            render={({field: {onChange, onBlur, value}}) => (
+              <Input
+                value={value}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                keyboardType="email-address"
+                placeholder="Email"
+                autoCapitalize="none"
+              />
+            )}
+          />
+          {errors.email && (
+            <Text style={styles.errorText}>
+              {errors.email?.message as string}
+            </Text>
+          )}
+
+          <Controller
+            control={control}
+            name="phone_number"
+            render={({field: {onChange, onBlur, value}}) => (
+              <Input
+                value={value}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                keyboardType="phone-pad"
+                placeholder="Phone Number"
+                autoCapitalize="none"
+              />
+            )}
+          />
+          {errors.phone_number && (
+            <Text style={styles.errorText}>
+              {errors.phone_number?.message as string}
+            </Text>
+          )}
+
+          <Controller
+            control={control}
+            name="password"
+            render={({field: {onChange, onBlur, value}}) => (
+              <Input
+                value={value}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                autoCapitalize="none"
+                secureTextEntry
+                placeholder="Password"
+              />
+            )}
+          />
+          {errors.password && (
+            <Text style={styles.errorText}>
+              {errors.password?.message as string}
+            </Text>
+          )}
+
+          <Controller
+            control={control}
+            name="confirm_password"
+            render={({field: {onChange, onBlur, value}}) => (
+              <Input
+                value={value}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                autoCapitalize="none"
+                secureTextEntry
+                placeholder="Confirm Password"
+              />
+            )}
+          />
+          {errors.confirm_password && (
+            <Text style={styles.errorText}>
+              {errors.confirm_password?.message as string}
+            </Text>
+          )}
+
+          <Button onPress={handleSubmit(onRegister)}>Sign Up</Button>
         </View>
-      </ScrollView>
-    </View>
+      </View>
+    </ScrollView>
   );
 };
 
@@ -190,6 +242,15 @@ const styles = StyleSheet.create({
   title: {
     textAlign: 'center',
     fontWeight: '300',
+    color: 'white',
+    fontSize: 60,
+  },
+  subtitle: {color: 'white', fontSize: 16},
+  link: {
+    color: 'white',
+    fontWeight: '900',
+    textDecorationLine: 'underline',
+    fontSize: 16,
   },
   social: {
     gap: 20,
@@ -206,6 +267,10 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   passwordMatch: {
+    color: 'yellow',
+  },
+  errorText: {
+    marginTop: -15,
     color: 'yellow',
   },
 });

@@ -1,67 +1,89 @@
-/* eslint-disable react-native/no-inline-styles */
 import {StackScreenProps} from '@react-navigation/stack';
 import React, {useState} from 'react';
-import {View, StyleSheet, Image, Alert} from 'react-native';
+import {View, StyleSheet, Image, Text} from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
-import {Button, Text, TextInput, useTheme} from 'react-native-paper';
 import {RootStackParams} from '../../navigation/StackNavigator';
 import {useAuthStore} from '../../store/auth/useAuthStore';
 
+import {z} from 'zod';
+import {useForm, Controller} from 'react-hook-form';
+import {zodResolver} from '@hookform/resolvers/zod';
+import {Button} from '../../../components/ui';
+import Input from '../../../components/ui/Input';
+
 interface Props extends StackScreenProps<RootStackParams, 'LoginScreen'> {}
 
-export const LoginScreen = ({navigation}: Props) => {
-  const theme = useTheme();
+const loginUserSchema = z.object({
+  username: z
+    .string()
+    .refine(
+      value =>
+        z.string().email().safeParse(value).success ||
+        /^\+\d{1,3}\d{10}$/.test(value),
+      {
+        message: 'Username must be a valid email address or phone number',
+      },
+    ),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(
+      /(?:(?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/,
+      'Password must include uppercase, lowercase and numbers',
+    ),
+});
 
+export const LoginScreen = ({navigation}: Props) => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const [form, setForm] = useState({
-    email: 'test1@google.com',
-    password: 'Abc123',
+  const {
+    control,
+    handleSubmit,
+    formState: {errors},
+    setError,
+  } = useForm<z.infer<typeof loginUserSchema>>({
+    resolver: zodResolver(loginUserSchema),
+    defaultValues: {
+      username: '',
+      password: '',
+    },
   });
 
-  const {login} = useAuthStore();
-  const onLogin = async () => {
-    if (form.email.length === 0 || form.password.length === 0) {
-      Alert.alert('Info', 'Complete the fields email and password');
-      return;
-    }
+  const {signin} = useAuthStore();
 
+  const onLogin = async (values: z.infer<typeof loginUserSchema>) => {
     setIsLoading(true);
-    const wasSuccessful = await login(form.email, form.password);
+    const response = await signin(values.username, values.password);
     setIsLoading(false);
-
-    if (wasSuccessful) {
+    if (response.error === 'Inactive') {
+      navigation.navigate('VerifyScreen');
       return;
     }
-
-    Alert.alert('Error', 'Incorrect credentials');
+    if (response.error === 'Unauthorized') {
+      setError('root', {
+        type: 'manual',
+        message:
+          response.message +
+          '. Please check your credentials or register a new account.',
+      });
+      return;
+    }
   };
 
   return (
-    <View style={{...styles.container, backgroundColor: theme.colors.primary}}>
+    <View style={styles.container}>
       <ScrollView>
         <View style={styles.header}>
           <Image
             source={require('../../../assets/logo.webp')}
             style={styles.banner}
           />
-          <Text
-            style={{...styles.title, color: theme.colors.onPrimary}}
-            variant="displayLarge">
-            Sign In
-          </Text>
-          <Text
-            style={{
-              marginTop: 20,
-              color: theme.colors.onPrimary,
-            }}>
+          <Text style={styles.title}>Sign In</Text>
+          <Text style={styles.subtitle}>
             You don't have an account?{' '}
             <Text
               onPress={() => navigation.navigate('RegisterScreen')}
-              style={{
-                color: theme.colors.primaryContainer,
-                fontWeight: '800',
-              }}>
+              style={styles.link}>
               Sign Up
             </Text>
           </Text>
@@ -70,7 +92,7 @@ export const LoginScreen = ({navigation}: Props) => {
         {/* <View style={styles.social}> */}
         {/* <FAB */}
         {/* icon={'logo-google'} */}
-        {/* onPress={() => console.log('login with google')} */}
+        {/* onPress={() => console.log('signin with google')} */}
         {/* style={{backgroundColor: theme.colors.onPrimary}} */}
         {/* /> */}
         {/* <FAB
@@ -88,35 +110,56 @@ export const LoginScreen = ({navigation}: Props) => {
 
         {/* <View style={styles.orEmail}>
           <Text variant="titleMedium" style={{color: theme.colors.onPrimary}}>
-            Or login with email
+            Or signin with email
           </Text>
         </View> */}
 
         <View style={styles.inputs}>
-          <TextInput
-            autoCapitalize="none"
-            placeholder="user@gmail.com"
-            label="Email"
-            keyboardType="email-address"
-            value={form.email}
-            onChangeText={email => setForm({...form, email})}
-            style={{backgroundColor: theme.colors.onPrimary}}
+          {errors.root && (
+            <Text style={styles.errorText}>
+              {errors.root?.message as string}
+            </Text>
+          )}
+          <Controller
+            control={control}
+            name="username"
+            render={({field: {onChange, onBlur, value}}) => (
+              <Input
+                value={value}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                keyboardType="email-address"
+                placeholder="Email or phone number"
+              />
+            )}
           />
-          <TextInput
-            label="Password"
-            placeholder="Enter password here"
-            value={form.password}
-            onChangeText={password => setForm({...form, password})}
-            secureTextEntry
-            style={{backgroundColor: theme.colors.onPrimary}}
+          {errors.username && (
+            <Text style={styles.errorText}>
+              {errors.username?.message as string}
+            </Text>
+          )}
+
+          <Controller
+            control={control}
+            name="password"
+            render={({field: {onChange, onBlur, value}}) => (
+              <Input
+                value={value}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                autoCapitalize="words"
+                secureTextEntry
+                placeholder="Enter password"
+              />
+            )}
           />
-          <Button
-            icon={'log-in-outline'}
-            loading={isLoading}
-            disabled={isLoading}
-            uppercase
-            onPress={onLogin}
-            mode="elevated">
+          {errors.password && (
+            <Text style={styles.errorText}>
+              {errors.password?.message as string}
+            </Text>
+          )}
+
+          <Button disabled={isLoading} onPress={handleSubmit(onLogin)}>
             Login
           </Button>
         </View>
@@ -140,8 +183,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
+    fontSize: 60,
     textAlign: 'center',
     fontWeight: '300',
+    color: 'white',
+  },
+  subtitle: {
+    marginTop: 20,
+    color: 'white',
+    fontSize: 16,
+  },
+  link: {
+    color: 'white',
+    fontWeight: '900',
+    textDecorationLine: 'underline',
+    fontSize: 16,
   },
   social: {
     gap: 20,
@@ -156,6 +212,10 @@ const styles = StyleSheet.create({
   },
   inputs: {
     gap: 20,
+  },
+  errorText: {
+    marginTop: -15,
+    color: 'yellow',
   },
 });
 

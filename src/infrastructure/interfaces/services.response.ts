@@ -5,12 +5,13 @@ export interface ServicesResponse {
   duration: string;
   description: string;
   isActive: boolean;
-  images: Images[];
+  images: Image[];
+  staffMembers: StaffMembers[];
   user: User;
 }
 
-interface Images {
-  id: string;
+export interface Image {
+  id: number;
   url: string;
 }
 
@@ -18,6 +19,13 @@ export interface User {
   id: string;
   email: string;
   fullName: string;
+  phoneNumber: null;
   isActive: boolean;
   roles: string[];
+}
+
+export interface StaffMembers {
+  id: string;
+  name: string;
+  isActive: boolean;
 }

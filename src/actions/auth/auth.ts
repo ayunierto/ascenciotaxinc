@@ -1,72 +1,62 @@
 import {api} from '../../config/api/api';
-import {User} from '../../domain/entities/user';
-import type {AuthResponse} from '../../infrastructure/interfaces/auth.response';
+import {RegisterData} from '../../infrastructure/interfaces';
 
-const returnUserToken = (data: AuthResponse) => {
-  const user: User = {
-    id: data.id,
-    email: data.email,
-    fullName: data.fullName,
-    isActive: data.isActive,
-    roles: data.roles,
-  };
-
-  return {
-    user: user,
-    token: data.token,
-  };
-};
-
-export const authLogin = async (email: string, password: string) => {
-  email = email.toLocaleLowerCase();
+export const signin = async (username: string, password: string) => {
   try {
     const data = await api('/auth/signin', 'POST', {
-      email,
+      username: username,
       password,
     });
-    if (data.token) {
-      return returnUserToken(data);
-    }
-    return null;
+    return data;
   } catch (error) {
-    console.log(error);
-    return null;
+    return error;
   }
 };
 
-export const authRegister = async (
-  fullName: string,
-  email: string,
-  phoneNumber: string,
-  password: string,
-) => {
-  email = email.toLocaleLowerCase();
+export const signup = async ({
+  email,
+  last_name,
+  name,
+  password,
+  phone_number,
+}: RegisterData) => {
+  email = email.toLocaleLowerCase().trim();
+
   try {
     const data = await api('/auth/signup', 'POST', {
-      fullName,
       email,
-      phoneNumber,
+      last_name,
+      name,
       password,
+      phone_number,
     });
-    if (data.token) {
-      return returnUserToken(data);
-    }
-    return null;
+    return data;
   } catch (error) {
-    console.log(error);
-    return null;
+    return error;
   }
 };
 
-export const authCheckSatus = async () => {
+export const checkSatus = async () => {
   try {
     const data = await api('/auth/check-status', 'GET');
-    if (data.token) {
-      return returnUserToken(data);
-    }
-    return null;
+    return data;
   } catch (error) {
     console.error(error);
     return null;
+  }
+};
+
+export const verifyCode = async (
+  phone_number: string,
+  verfication_code: string,
+) => {
+  try {
+    const data = await api('/auth/verify-code', 'POST', {
+      phone_number: phone_number,
+      verfication_code: verfication_code,
+    });
+    return data;
+  } catch (error) {
+    return error;
   }
 };
