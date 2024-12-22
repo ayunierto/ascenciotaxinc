@@ -44,8 +44,8 @@ export const LoginScreen = ({navigation}: Props) => {
   } = useForm<z.infer<typeof loginUserSchema>>({
     resolver: zodResolver(loginUserSchema),
     defaultValues: {
-      username: '',
-      password: '',
+      username: 'admin@ascenciotaxinc.com',
+      password: 'Abcd1234',
     },
   });
 
@@ -78,13 +78,13 @@ export const LoginScreen = ({navigation}: Props) => {
             source={require('../../../assets/logo.webp')}
             style={styles.banner}
           />
-          <Text style={styles.title}>Sign In</Text>
+          <Text style={styles.title}>Log in</Text>
           <Text style={styles.subtitle}>
-            You don't have an account?{' '}
+            Don’t have an account?{' '}
             <Text
               onPress={() => navigation.navigate('RegisterScreen')}
               style={styles.link}>
-              Sign Up
+              Sign up.
             </Text>
           </Text>
         </View>
@@ -198,8 +198,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   link: {
-    color: 'white',
-    fontWeight: '900',
+    color: 'orange',
     textDecorationLine: 'underline',
     fontSize: 16,
   },

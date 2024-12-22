@@ -1,16 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-native/no-inline-styles */
 import React from 'react';
-import {Image, ScrollView, StyleSheet, View} from 'react-native';
-import {
-  Appbar,
-  Button,
-  Card,
-  Chip,
-  Divider,
-  Menu,
-  Text,
-  useTheme,
-} from 'react-native-paper';
+import {Image, ScrollView, StyleSheet, Text, View} from 'react-native';
 import {getServices} from '../../../actions/services/get-services';
 import {useQuery} from '@tanstack/react-query';
 import MainLayout from '../../layouts/MainLayout';
@@ -19,12 +10,14 @@ import {useAuthStore} from '../../store/auth/useAuthStore';
 import {StackScreenProps} from '@react-navigation/stack';
 import {RootStackParams} from '../../navigation/StackNavigator';
 import {useBookingStore} from '../../store/useBookingStore';
+import {Service} from '../../../domain/entities/service';
+import {Card, Chip} from 'react-native-paper';
+import {Button} from '../../../components/ui';
+import Sidebar from '../../../components/sidebar/Sidebar';
 
 interface Props extends StackScreenProps<RootStackParams, 'HomeScreen'> {}
 
 export const HomeScreen = ({navigation}: Props) => {
-  const theme = useTheme();
-
   const {isLoading, data: services = []} = useQuery({
     queryKey: ['service', 'infinite'],
     staleTime: 1000 * 60 * 60,
@@ -50,7 +43,7 @@ export const HomeScreen = ({navigation}: Props) => {
     <MainLayout
       rightActionIcons={
         <>
-          <Menu
+          {/* <Menu
             visible={visible}
             onDismiss={closeMenu}
             anchor={
@@ -62,7 +55,7 @@ export const HomeScreen = ({navigation}: Props) => {
             }>
             <Menu.Item
               leadingIcon="person-circle-outline"
-              onPress={() => navigation.navigate('SettingsScreen')}
+              onPress={() => navigation.navigate('ProfileScreen')}
               title="Profile"
             />
             <Divider />
@@ -71,14 +64,15 @@ export const HomeScreen = ({navigation}: Props) => {
               onPress={logout}
               title="Logout"
             />
-          </Menu>
+          </Menu> */}
         </>
       }>
       <ScrollView>
+        <Sidebar />
         <View
           style={{
             ...styles.container,
-            backgroundColor: theme.colors.primary,
+            backgroundColor: '',
             paddingTop: 30,
           }}>
           <Image
@@ -88,12 +82,12 @@ export const HomeScreen = ({navigation}: Props) => {
           {isLoading ? (
             <FullScreenLoader />
           ) : (
-            services.map(service => (
+            (services as Service[]).map(service => (
               <Card key={service.id}>
                 <Card.Cover source={{uri: service.image}} />
                 <Card.Content style={{padding: 10, gap: 10}}>
-                  <Text variant="titleLarge">{service.title}</Text>
-                  <Text variant="bodyMedium">{service.duration}</Text>
+                  <Text>{service.title}</Text>
+                  <Text>{service.duration}</Text>
                   {service.isAvailableOnline && (
                     <View style={{flexDirection: 'row'}}>
                       <Chip
@@ -106,7 +100,6 @@ export const HomeScreen = ({navigation}: Props) => {
                 </Card.Content>
                 <Card.Actions>
                   <Button
-                    mode="contained"
                     onPress={() =>
                       handleBookNow(service.title, service.staffMembers)
                     }>

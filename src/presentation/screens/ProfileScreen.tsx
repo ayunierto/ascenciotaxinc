@@ -1,19 +1,14 @@
-import React, {useState} from 'react';
-import {View, StyleSheet, Image, Text} from 'react-native';
-
-import {ScrollView} from 'react-native-gesture-handler';
-import {StackScreenProps} from '@react-navigation/stack';
-
-import {RootStackParams} from '../../navigation/StackNavigator';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import React, {useEffect} from 'react';
+import {View, StyleSheet, Text} from 'react-native';
+import MainLayout from '../layouts/MainLayout';
+import Input from '../../components/ui/Input';
+import {Button} from '../../components/ui';
 
 import {z} from 'zod';
-import {useForm, Controller} from 'react-hook-form';
+import {Controller, useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
-
-import {useAuthStore} from '../../store/auth/useAuthStore';
-import {Button, Input} from '../../../components/ui';
-
-interface Props extends StackScreenProps<RootStackParams, 'RegisterScreen'> {}
+import {useAuthStore} from '../store/auth/useAuthStore';
 
 const registerUserSchema = z
   .object({
@@ -43,7 +38,8 @@ const registerUserSchema = z
     path: ['confirm_password'],
   });
 
-export const RegisterScreen = ({navigation}: Props) => {
+export const ProfileScreen = () => {
+  const {user} = useAuthStore();
   const {
     control,
     handleSubmit,
@@ -53,103 +49,52 @@ export const RegisterScreen = ({navigation}: Props) => {
   } = useForm<z.infer<typeof registerUserSchema>>({
     resolver: zodResolver(registerUserSchema),
     defaultValues: {
-      confirm_password: 'Abcd1234',
-      password: 'Abcd1234',
-      email: 'admin@ascenciotaxinc.com',
-      last_name: 'Doe',
-      name: 'John',
-      phone_number: '+10000000000',
+      confirm_password: '',
+      name: '',
+      last_name: '',
+      email: user?.email,
+      phone_number: '',
+      password: '',
     },
   });
 
-  const {signup} = useAuthStore();
-
-  const [isLoading, setIsLoading] = useState(false);
-
-  const onRegister = async (values: z.infer<typeof registerUserSchema>) => {
-    setIsLoading(true);
-    const validPhoneResonse = await fetch(
-      `https://lookups.twilio.com/v2/PhoneNumbers/${values.phone_number}`,
-      {
-        method: 'GET',
-        headers: {
-          Authorization:
-            'Basic ' +
-            btoa(
-              'AC8d8034cdc2662912867d327112969bbf:2b63e5367dc7413d7b7f6fc1cd81877d',
-            ),
-        },
-
-        redirect: 'follow',
-      },
-    ).then(response => response.json());
-
-    if (!validPhoneResonse.valid) {
-      setError('phone_number', {
-        type: 'manual',
-        message: 'The phone number is not valid',
-      });
-      setIsLoading(false);
-      return;
-    }
-
-    const response = await signup(values);
-    setIsLoading(false);
-    if (response.verification_code) {
-      navigation.navigate('VerifyScreen');
-    }
-    if (response.statusCode === 400) {
-      setError('root', {
-        type: 'manual',
-        message: response.message[0],
-      });
-    }
-
-    if (response.code === 409) {
-      if (response.cause === 'email') {
-        setFocus('email');
-        setError('email', {
-          type: 'manual',
-          message:
-            'Your email is already being used by an existing AscencioTax account. You can go the AscencioTax login screen to login using this email.',
-        });
-        return;
-      }
-      if (response.cause === 'phone_number') {
-        setFocus('phone_number');
-        setError('phone_number', {
-          type: 'manual',
-          message:
-            'Your phone number is already being used by an existing AscencioTax account. You can go the AscencioTax login screen to login using this phone number.',
-        });
-        return;
-      }
-    }
+  const onUpdate = async (values: z.infer<typeof registerUserSchema>) => {
+    // const response = await signup(values);
+    // if (response.verification_code) {
+    // }
+    // if (response.code === 409) {
+    //   if (response.cause === 'email') {
+    //     setFocus('email');
+    //     setError('email', {
+    //       type: 'manual',
+    //       message:
+    //         'Your email is already being used by an existing AscencioTax account. You can go the AscencioTax login screen to login using this email.',
+    //     });
+    //     return;
+    //   }
+    //   if (response.cause === 'phone_number') {
+    //     setFocus('phone_number');
+    //     setError('phone_number', {
+    //       type: 'manual',
+    //       message:
+    //         'Your phone number is already being used by an existing AscencioTax account. You can go the AscencioTax login screen to login using this phone number.',
+    //     });
+    //     return;
+    //   }
+    // }
   };
 
   return (
-    <ScrollView>
+    <MainLayout>
       <View style={styles.container}>
         <View style={styles.header}>
-          <Image
-            source={require('../../../assets/logo.webp')}
-            style={styles.banner}
-          />
-          <Text style={styles.title}>Sign up</Text>
+          <Text style={styles.title}>Profile</Text>
           <Text style={styles.subtitle}>
-            Already have an account?{' '}
-            <Text onPress={() => navigation.goBack()} style={styles.link}>
-              Log in
-            </Text>
+            Please complete your personal information.
           </Text>
         </View>
 
         <View style={styles.inputs}>
-          {errors.root && (
-            <Text style={styles.errorText}>
-              {errors.root?.message as string}
-            </Text>
-          )}
           <Controller
             control={control}
             name="name"
@@ -169,18 +114,17 @@ export const RegisterScreen = ({navigation}: Props) => {
               {errors.name?.message as string}
             </Text>
           )}
-
           <Controller
             control={control}
             name="last_name"
             render={({field: {onChange, onBlur, value}}) => (
               <Input
-                placeholder="Last name"
                 value={value}
                 onBlur={onBlur}
                 onChangeText={onChange}
+                placeholder="Last name"
                 autoCapitalize="words"
-                autoComplete="name-family"
+                autoComplete="family-name"
               />
             )}
           />
@@ -189,7 +133,6 @@ export const RegisterScreen = ({navigation}: Props) => {
               {errors.last_name?.message as string}
             </Text>
           )}
-
           <Controller
             control={control}
             name="email"
@@ -198,9 +141,8 @@ export const RegisterScreen = ({navigation}: Props) => {
                 value={value}
                 onBlur={onBlur}
                 onChangeText={onChange}
-                keyboardType="email-address"
                 placeholder="Email"
-                autoCapitalize="none"
+                autoCapitalize="words"
                 autoComplete="email"
               />
             )}
@@ -210,7 +152,6 @@ export const RegisterScreen = ({navigation}: Props) => {
               {errors.email?.message as string}
             </Text>
           )}
-
           <Controller
             control={control}
             name="phone_number"
@@ -219,9 +160,8 @@ export const RegisterScreen = ({navigation}: Props) => {
                 value={value}
                 onBlur={onBlur}
                 onChangeText={onChange}
-                keyboardType="phone-pad"
-                placeholder="Phone Number"
-                autoCapitalize="none"
+                placeholder="Phone number"
+                autoCapitalize="words"
                 autoComplete="tel"
               />
             )}
@@ -231,7 +171,6 @@ export const RegisterScreen = ({navigation}: Props) => {
               {errors.phone_number?.message as string}
             </Text>
           )}
-
           <Controller
             control={control}
             name="password"
@@ -240,10 +179,9 @@ export const RegisterScreen = ({navigation}: Props) => {
                 value={value}
                 onBlur={onBlur}
                 onChangeText={onChange}
-                autoCapitalize="none"
-                secureTextEntry
-                placeholder="Password"
-                autoComplete="password-new"
+                placeholder="password"
+                autoCapitalize="words"
+                autoComplete="new-password"
               />
             )}
           />
@@ -252,7 +190,6 @@ export const RegisterScreen = ({navigation}: Props) => {
               {errors.password?.message as string}
             </Text>
           )}
-
           <Controller
             control={control}
             name="confirm_password"
@@ -261,10 +198,9 @@ export const RegisterScreen = ({navigation}: Props) => {
                 value={value}
                 onBlur={onBlur}
                 onChangeText={onChange}
-                autoCapitalize="none"
-                secureTextEntry
-                placeholder="Confirm Password"
-                autoComplete="password-new"
+                placeholder="Confirm password"
+                autoCapitalize="words"
+                autoComplete="new-password"
               />
             )}
           />
@@ -273,13 +209,10 @@ export const RegisterScreen = ({navigation}: Props) => {
               {errors.confirm_password?.message as string}
             </Text>
           )}
-
-          <Button disabled={isLoading} onPress={handleSubmit(onRegister)}>
-            Sign Up
-          </Button>
+          <Button onPress={handleSubmit(onUpdate)}>Save</Button>
         </View>
       </View>
-    </ScrollView>
+    </MainLayout>
   );
 };
 
@@ -288,26 +221,15 @@ const styles = StyleSheet.create({
     padding: 20,
     height: '100%',
   },
-  banner: {
-    width: '100%',
-    resizeMode: 'contain',
-  },
   header: {
-    paddingBottom: 40,
-    alignItems: 'center',
+    paddingBottom: 20,
   },
   title: {
-    textAlign: 'center',
     fontWeight: '300',
     color: 'white',
-    fontSize: 60,
+    fontSize: 40,
   },
   subtitle: {color: 'white', fontSize: 16},
-  link: {
-    color: 'orange',
-    textDecorationLine: 'underline',
-    fontSize: 16,
-  },
   social: {
     gap: 20,
     alignItems: 'center',
@@ -322,13 +244,10 @@ const styles = StyleSheet.create({
   inputs: {
     gap: 20,
   },
-  passwordMatch: {
-    color: 'yellow',
-  },
   errorText: {
     marginTop: -15,
-    color: 'orange',
+    color: 'yellow',
   },
 });
 
-export default RegisterScreen;
+export default ProfileScreen;

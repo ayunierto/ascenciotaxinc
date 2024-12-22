@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import {useAuthStore} from '../../store/auth/useAuthStore';
 import {Button} from '../../../components/ui';
@@ -27,15 +27,20 @@ export const VerifyScreen = () => {
     },
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleVerify = async ({
     verification_code,
   }: z.infer<typeof verifyUserSchema>) => {
-    // Aquí puedes agregar la lógica para verificar el código
+    setIsLoading(true);
     const response = await verifyCode(user!.phone_number, verification_code);
+    setIsLoading(false);
+
     if (response.statusCode === 401) {
       setError('verification_code', {
         type: 'manual',
-        message: response.message + '. Please check SMS.',
+        message:
+          response.message + '. Please check SMS or talk to an administrator',
       });
       return;
     }
@@ -54,7 +59,6 @@ export const VerifyScreen = () => {
         name="verification_code"
         render={({field: {onChange, onBlur, value}}) => (
           <Input
-            style={styles.input}
             value={value}
             onBlur={onBlur}
             onChangeText={onChange}
@@ -70,7 +74,9 @@ export const VerifyScreen = () => {
           {errors.verification_code?.message as string}
         </Text>
       )}
-      <Button onPress={handleSubmit(handleVerify)}>Verify</Button>
+      <Button disabled={isLoading} onPress={handleSubmit(handleVerify)}>
+        Verify
+      </Button>
     </View>
   );
 };
@@ -79,7 +85,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    padding: 16,
+    padding: 20,
+    gap: 20,
   },
   title: {
     textAlign: 'center',
@@ -90,23 +97,13 @@ const styles = StyleSheet.create({
   subtitle: {
     color: 'white',
     fontSize: 24,
-    marginBottom: 40,
     textAlign: 'center',
   },
   paragraph: {
-    marginBottom: 10,
     color: 'yellow',
     fontSize: 14,
   },
-  input: {
-    borderColor: 'white',
-    borderWidth: 1,
-    marginBottom: 16,
-    paddingHorizontal: 18,
-    borderRadius: 10,
-    fontSize: 16,
-    color: 'white',
-  },
+
   errorText: {
     marginTop: -15,
     marginBottom: 20,

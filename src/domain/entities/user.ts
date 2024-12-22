@@ -1,14 +1,14 @@
 export interface User {
-  id: string;
-  name: string;
-  last_name: string;
-  email: string;
-  phone_number: string;
-  password: string;
   birthdate: null;
+  email: string;
+  id: string;
   is_active: boolean;
-  registration_date: Date;
   last_login: null;
+  last_name: string;
+  name: string;
+  password: string;
+  phone_number: string;
+  registration_date: Date;
   roles: string[];
   token: string;
   verification_code: string;

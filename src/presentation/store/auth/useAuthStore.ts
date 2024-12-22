@@ -1,10 +1,8 @@
 import {create} from 'zustand';
 import {User} from '../../../domain/entities/user';
-import {AuthStatus} from '../../../infrastructure/interfaces/auth.status';
 import {StorageAdapter} from '../../../config/adapters/storage-adapter';
-import {checkSatus, signin, signup} from '../../../actions/auth';
-import {RegisterData} from '../../../infrastructure/interfaces';
-import {verifyCode} from '../../../actions/auth/auth';
+import {RegisterData, AuthStatus} from '../../../infrastructure/interfaces';
+import {checkStatus, signin, signup, verifyCode} from '../../../actions/auth';
 
 export interface AuthState {
   status: AuthStatus;
@@ -13,13 +11,12 @@ export interface AuthState {
 
   signin: (email: string, password: string) => Promise<any>;
   signup: (values: RegisterData) => Promise<any>;
-  checkStatus: () => Promise<void>;
+  checkStatus: () => Promise<any>;
   logout: () => Promise<boolean>;
   verifyCode: (phone_number: string, verfication_code: string) => Promise<any>;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const useAuthStore = create<AuthState>()((set, get) => ({
+export const useAuthStore = create<AuthState>()(set => ({
   status: 'checking',
   token: undefined,
   user: undefined,
@@ -29,16 +26,17 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     if (response.error === 'Inactive') {
       set({status: 'unauthenticated', token: undefined, user: undefined});
     }
+
+    if (response.token) {
+      await StorageAdapter.setItem('token', response.token);
+      set({
+        status: 'authenticated',
+        token: response.token,
+        user: response.user,
+      });
+    }
+
     return response;
-    // if (!response) {
-    //   set({status: 'unauthenticated', token: undefined, user: undefined});
-    //   return false;
-    // }
-
-    // await StorageAdapter.setItem('token', response.token);
-
-    // set({status: 'authenticated', token: response.token, user: response.user});
-    // return true;
   },
 
   signup: async (values: RegisterData) => {
@@ -47,19 +45,10 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       set({status: 'unauthenticated', token: undefined, user: response});
     }
     return response;
-    // if (!response) {
-    //   set({status: 'unauthenticated', token: undefined, user: undefined});
-    //   return false;
-    // }
-
-    // await StorageAdapter.setItem('token', response.token);
-
-    // set({status: 'authenticated', token: response.token, user: response.user});
-    // return true;
   },
 
   checkStatus: async () => {
-    const response = await checkSatus();
+    const response = await checkStatus();
 
     if (response.statusCode === 401) {
       set({status: 'unauthenticated', token: undefined, user: undefined});
@@ -71,8 +60,18 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       return;
     }
 
-    await StorageAdapter.setItem('token', response.token);
-    set({status: 'authenticated', token: response.token, user: response.user});
+    if (response.token) {
+      await StorageAdapter.setItem('token', response.token);
+      set({
+        status: 'authenticated',
+        token: response.token,
+        user: response.user,
+      });
+      return;
+    }
+
+    set({status: 'unauthenticated', token: undefined, user: undefined});
+    return;
   },
 
   logout: async () => {
@@ -88,10 +87,11 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     const response = await verifyCode(phone_number, verification_code);
     if (response.token) {
       await StorageAdapter.setItem('token', response.token);
+
       set({
         status: 'authenticated',
         token: response.token,
-        user: undefined,
+        user: response.user,
       });
     }
     return response;

@@ -6,6 +6,7 @@ import {useAuthStore} from '../store/auth/useAuthStore';
 
 export const AuthProvider = ({children}: PropsWithChildren) => {
   const navigation = useNavigation<StackNavigationProp<RootStackParams>>();
+
   const {checkStatus, status} = useAuthStore();
 
   useEffect(() => {
@@ -27,8 +28,7 @@ export const AuthProvider = ({children}: PropsWithChildren) => {
         });
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status]);
+  }, [status, navigation]);
 
   return <>{children}</>;
 };

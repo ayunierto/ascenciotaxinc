@@ -8,7 +8,7 @@ import VerifyScreen from '../screens/auth/VerifyScreen';
 import HomeScreen from '../screens/home/HomeScreen';
 import BookingScreen from '../screens/booking/BookingScreen';
 import ResumeScreen from '../screens/booking/ResumeScreen';
-import SettingsScreen from '../screens/SettingsScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 
 export type RootStackParams = {
   LoadingScreen: undefined;
@@ -18,8 +18,7 @@ export type RootStackParams = {
   HomeScreen: undefined;
   BookingScreen: undefined;
   ResumeScreen: undefined;
-  SettingsScreen: undefined;
-  // ServiceScreen: {serviceId: string};
+  ProfileScreen: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParams>();
@@ -38,7 +37,7 @@ export const StackNavigator = () => {
       <Stack.Screen name="HomeScreen" component={HomeScreen} />
       <Stack.Screen name="BookingScreen" component={BookingScreen} />
       <Stack.Screen name="ResumeScreen" component={ResumeScreen} />
-      <Stack.Screen name="SettingsScreen" component={SettingsScreen} />
+      <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
     </Stack.Navigator>
   );
 };

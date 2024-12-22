@@ -1,15 +1,14 @@
-import {api} from '../../config/api/api';
-import {Service} from '../../domain/entities/service';
+import {API_URL} from '@env';
 import {ServicesResponse} from '../../infrastructure/interfaces/services.response';
-import {ServiceMapper} from '../../infrastructure/mappers/service.mapper';
 
-export const getServices = async (): Promise<Service[]> => {
+export const getServices = async () => {
   try {
-    const data: ServicesResponse[] = await api('/services', 'GET');
-    const services = data.map(ServiceMapper.serviceToEntity);
+    const services: ServicesResponse[] = await fetch(
+      `${API_URL}/services`,
+    ).then(result => result.json());
+
     return services;
   } catch (error) {
-    console.log(error);
-    throw new Error('Error getting services');
+    return error;
   }
 };
