@@ -32,11 +32,7 @@ export const Button = ({
       style={buttonStyles}
       onPress={disabled ? () => {} : onPress}
       {...rest}>
-      {children ? (
-        <Text style={textStyles}>{children}</Text>
-      ) : (
-        <Text style={textStyles}>{title}</Text>
-      )}
+      {children ? children : <Text style={textStyles}>{title}</Text>}
     </TouchableOpacity>
   );
 };

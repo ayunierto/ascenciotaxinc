@@ -1,14 +1,13 @@
+import {API_URL} from '@env';
 import axios from 'axios';
-import {api} from '../../config/api/api';
 
-const API_BASE_URL = 'http://localhost:3000/api/google-calendar';
+const API_BASE_URL = API_URL;
 
 export default {
   // Método para redirigir a la autenticación
   getAuthUrl: async () => {
     try {
-      const response = await api('/google-calendar/auth', 'GET');
-      console.log(response);
+      const response = await fetch('/google-calendar/auth');
       return response; // Retorna la URL de autenticación de Google
     } catch (error) {
       console.error('Error obteniendo URL de autenticación', error);

@@ -5,10 +5,23 @@ import {Button, Card, Text, useTheme} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MainLayout from '../../layouts/MainLayout';
 import {useBookingStore} from '../../store/useBookingStore';
+import {StackScreenProps} from '@react-navigation/stack';
+import {RootStackParams} from '../../navigation/StackNavigator';
 
-export const ResumeScreen = () => {
+interface Props extends StackScreenProps<RootStackParams, 'ResumeScreen'> {}
+export const ResumeScreen = ({navigation}: Props) => {
   const theme = useTheme();
-  const {service, staff} = useBookingStore();
+  const {selectedService, staffName, startDateAndTime, bookNow} =
+    useBookingStore();
+
+  const handleConfirm = async () => {
+    const appointment = await bookNow();
+    console.warn(appointment);
+    if (appointment.id) {
+      console.log('Appointment confirmed');
+      navigation.navigate('HomeScreen');
+    }
+  };
 
   return (
     <MainLayout>
@@ -23,7 +36,7 @@ export const ResumeScreen = () => {
           style={{backgroundColor: theme.colors.onPrimary}}>
           <Card.Title
             title="Service"
-            subtitle={service}
+            subtitle={selectedService?.name}
             left={props => (
               <Icon
                 style={{color: theme.colors.primary}}
@@ -38,7 +51,7 @@ export const ResumeScreen = () => {
           style={{backgroundColor: theme.colors.onPrimary}}>
           <Card.Title
             title="Date"
-            subtitle="October 7, 2024 at 10:00 a.m."
+            subtitle={new Date(startDateAndTime!).toLocaleDateString()}
             left={props => (
               <Icon
                 style={{color: theme.colors.primary}}
@@ -53,7 +66,7 @@ export const ResumeScreen = () => {
           style={{backgroundColor: theme.colors.onPrimary}}>
           <Card.Title
             title="Address"
-            subtitle="271 Thomas Street, Peterborough ON"
+            subtitle={selectedService!.address}
             left={props => (
               <Icon
                 style={{color: theme.colors.primary}}
@@ -68,7 +81,7 @@ export const ResumeScreen = () => {
           style={{backgroundColor: theme.colors.onPrimary}}>
           <Card.Title
             title="Staff"
-            subtitle={staff}
+            subtitle={staffName}
             left={props => (
               <Icon
                 style={{color: theme.colors.primary}}
@@ -83,7 +96,10 @@ export const ResumeScreen = () => {
           style={{backgroundColor: theme.colors.onPrimary}}>
           <Card.Title
             title="Time"
-            subtitle="October 7, 2024 at 10:00 a.m."
+            subtitle={new Date(startDateAndTime!).toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
             left={props => (
               <Icon
                 style={{color: theme.colors.primary}}
@@ -93,7 +109,10 @@ export const ResumeScreen = () => {
             )}
           />
         </Card>
-        <Button mode="elevated" icon={'save-outline'}>
+        <Button
+          mode="elevated"
+          icon={'save-outline'}
+          onPress={() => handleConfirm()}>
           Confirm Appointment
         </Button>
       </View>

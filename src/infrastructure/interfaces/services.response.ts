@@ -1,13 +1,15 @@
-export interface ServicesResponse {
+export interface ServiceResponse {
   id: string;
-  title: string;
+  name: string;
+  duration: number;
+  price: string;
+  description: null;
   isAvailableOnline: boolean;
-  duration: string;
-  description: string;
   isActive: boolean;
   images: Image[];
-  staffMembers: StaffMembers[];
+  staff: Staff[];
   user: User;
+  address: string;
 }
 
 export interface Image {
@@ -15,17 +17,23 @@ export interface Image {
   url: string;
 }
 
-export interface User {
-  id: string;
-  email: string;
-  fullName: string;
-  phoneNumber: null;
-  isActive: boolean;
-  roles: string[];
-}
-
-export interface StaffMembers {
+export interface Staff {
   id: string;
   name: string;
+  lastName: string;
   isActive: boolean;
+}
+
+export interface User {
+  id: string;
+  name: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  birthdate: Date;
+  isActive: boolean;
+  registrationDate: Date;
+  lastLogin: null;
+  roles: string[];
+  verificationCode: string | null;
 }

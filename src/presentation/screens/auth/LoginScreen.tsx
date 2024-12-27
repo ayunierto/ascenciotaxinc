@@ -44,8 +44,8 @@ export const LoginScreen = ({navigation}: Props) => {
   } = useForm<z.infer<typeof loginUserSchema>>({
     resolver: zodResolver(loginUserSchema),
     defaultValues: {
-      username: 'admin@ascenciotaxinc.com',
-      password: 'Abcd1234',
+      username: '',
+      password: '',
     },
   });
 
@@ -163,9 +163,11 @@ export const LoginScreen = ({navigation}: Props) => {
             </Text>
           )}
 
-          <Button disabled={isLoading} onPress={handleSubmit(onLogin)}>
-            Login
-          </Button>
+          <Button
+            disabled={isLoading}
+            onPress={handleSubmit(onLogin)}
+            title="Login"
+          />
         </View>
       </View>
     </ScrollView>

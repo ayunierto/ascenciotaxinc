@@ -53,12 +53,12 @@ export const RegisterScreen = ({navigation}: Props) => {
   } = useForm<z.infer<typeof registerUserSchema>>({
     resolver: zodResolver(registerUserSchema),
     defaultValues: {
-      confirm_password: 'Abcd1234',
-      password: 'Abcd1234',
-      email: 'admin@ascenciotaxinc.com',
-      last_name: 'Doe',
-      name: 'John',
-      phone_number: '+10000000000',
+      confirm_password: '',
+      password: '',
+      email: '',
+      last_name: '',
+      name: '',
+      phone_number: '',
     },
   });
 

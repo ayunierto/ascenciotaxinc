@@ -2,7 +2,8 @@ import {API_URL} from '@env';
 
 export const signin = async (username: string, password: string) => {
   try {
-    const response = await fetch(`${API_URL}/auth/signin`, {
+    const url = API_URL;
+    const response = await fetch(`${url}/auth/signin`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
