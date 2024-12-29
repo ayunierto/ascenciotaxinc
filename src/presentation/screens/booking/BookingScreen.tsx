@@ -181,10 +181,7 @@ export const BookingScreen = ({navigation}: Props) => {
                 return (
                   <Chip
                     key={slot.start}
-                    style={[
-                      styles.chip,
-                      selectedSlot?.start === slot.start && styles.selectedSlot,
-                    ]}
+                    style={[styles.chip]}
                     icon="alarm-outline"
                     onPress={() => setSelectedSlot(slot)}>
                     {startTime}
@@ -240,13 +237,13 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   chip: {
-    marginVertical: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: '45%', // Ancho aproximado para 3 columnas (ajustar según sea necesario)
+    // aspectRatio: 1, // Mantiene la proporción 1:1 (cuadrado). Puedes quitar esto si no necesitas cuadrados.
     backgroundColor: 'white',
-  },
-  selectedSlot: {
-    backgroundColor: 'green',
+    marginVertical: 5, // Espacio vertical entre elementos
+    borderRadius: 8, // Bordes redondeados (opcional)
+    alignItems: 'center', // Centrado vertical
+    justifyContent: 'center', // Centrado horizontal
   },
 });
 

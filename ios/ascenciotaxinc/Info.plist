@@ -6,11 +6,6 @@
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
 	<string>ascenciotaxinc</string>
-	<key>UIAppFonts</key>
-	<array>
-		<string>MaterialCommunityIcons.ttf</string>
-		<string>Ionicons.ttf</string>
-	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

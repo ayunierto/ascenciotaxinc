@@ -16,9 +16,7 @@ export const ResumeScreen = ({navigation}: Props) => {
 
   const handleConfirm = async () => {
     const appointment = await bookNow();
-    console.warn(appointment);
     if (appointment.id) {
-      console.log('Appointment confirmed');
       navigation.navigate('HomeScreen');
     }
   };
