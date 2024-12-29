@@ -2,7 +2,7 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import {Button, Card, Text, useTheme} from 'react-native-paper';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from '@react-native-vector-icons/ionicons';
 import MainLayout from '../../layouts/MainLayout';
 import {useBookingStore} from '../../store/useBookingStore';
 import {StackScreenProps} from '@react-navigation/stack';

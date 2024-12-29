@@ -274,9 +274,11 @@ export const RegisterScreen = ({navigation}: Props) => {
             </Text>
           )}
 
-          <Button disabled={isLoading} onPress={handleSubmit(onRegister)}>
-            Sign Up
-          </Button>
+          <Button
+            title="Sign up"
+            disabled={isLoading}
+            onPress={handleSubmit(onRegister)}
+          />
         </View>
       </View>
     </ScrollView>
